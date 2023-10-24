@@ -51,7 +51,7 @@ Answer with explanation in simple words:
 st.title("Medical Chatbot")
 
 # Create vector database (You may call this function when needed)
-create_vector_db()
+# create_vector_db()
 
 def set_custom_prompt():
     """
