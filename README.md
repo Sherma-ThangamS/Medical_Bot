@@ -1,6 +1,7 @@
 # MediBot - Your Medical Chatbot
 
-![MediBot](https://yourimageurl.com)
+
+![MediBot](https://github.com/Sherma-ThangamS/Medical_Bot/assets/119473142/07365d6f-6584-4a71-8519-d81840b88ee6)
 
 MediBot is a medical chatbot powered by advanced AI and natural language processing. It can answer your medical queries, provide information on various health topics, and assist you in finding the information you need.
 
