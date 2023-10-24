@@ -1,51 +1,71 @@
-# Medibot - Your Medical Assistant
+# MediBot - Your Medical Chatbot
 
-Medibot is an AI-powered medical chatbot that provides instant answers to your medical queries. It's designed to assist you with medical information, symptoms, treatments, and more. You can access Medibot via the web at [https://sherma-medibot.streamlit.app/](https://sherma-medibot.streamlit.app/).
+![MediBot](https://yourimageurl.com)
+
+MediBot is a medical chatbot powered by advanced AI and natural language processing. It can answer your medical queries, provide information on various health topics, and assist you in finding the information you need.
+
+🚀 **Demo**: [MediBot Demo](https://sherma-medibot.streamlit.app/)
 
 ## Features
 
-- **Instant Medical Answers**: Get quick and reliable answers to your medical questions.
-- **Sample Questions**: Find sample questions you can ask for common medical topics.
-- **Contact Details**: Access contact information for additional support.
+- Ask medical questions and get instant answers.
+- Browse a range of sample questions for inspiration.
+- Access contact details for further assistance.
+- Retrieve valuable information from a database of medical documents.
+- Designed with a user-friendly interface.
 
-## How to Use
+## Usage
 
-1. **Access the Medibot Web App**: Visit [Medibot Web App](https://sherma-medibot.streamlit.app/).
-2. **Sample Questions**: On the sidebar, you'll find sample questions that you can ask.
-3. **User Input**: At the bottom of the page, you can enter your own medical query.
-4. **Submit Query**: Click the "Submit" button to get an instant response from Medibot.
+1. Visit the [MediBot Demo](https://sherma-medibot.streamlit.app/) to interact with the chatbot.
 
-## Sample Questions
+2. Enter your medical query in the text input box at the bottom of the page.
 
-Medibot provides sample questions for common medical topics to help you get started:
+3. Click the "Submit" button to receive a response from the chatbot.
 
-- What are the symptoms of COVID-19?
-- How can I lower my blood pressure?
-- Tell me about diabetes management.
-- How to treat a common cold?
-- Describe the signs of a heart attack.
+4. The conversation history is displayed above the input box, allowing you to track the conversation.
 
-## Contact Details
+5. Sample questions and contact details are available in the sidebar for your convenience.
 
-For additional support and inquiries, you can reach out to Medibot:
+## Technology Stack
+
+- Streamlit: A powerful Python library for building interactive web applications.
+- Langchain: Used for AI-powered text processing, document retrieval, and chat completion.
+- Hugging Face Transformers: For natural language processing and conversation modeling.
+
+## Deployment
+
+MediBot is deployed using Streamlit. You can deploy it yourself by following these steps:
+
+1. Clone this repository.
+
+2. Install the necessary dependencies by running `pip install -r requirements.txt`.
+
+3. Set up the required environment variables, including your Google API key.
+
+4. Create a vector database with your medical documents or use the provided one.
+
+5. Run the application using Streamlit: `streamlit run app.py`.
+
+6. Access the application in your web browser by opening the URL provided by Streamlit.
+
+## Contributing
+
+Contributions are welcome! If you want to contribute to the development of MediBot, please follow these guidelines:
+
+1. Fork the repository.
+
+2. Create a new branch for your feature or bug fix.
+
+3. Make your changes and submit a pull request.
+
+4. Ensure that your code is well-documented and follows the project's coding standards.
+
+## Contact
+
+If you have any questions, suggestions, or issues, please feel free to contact us:
 
 - Email: sshermathangam@gmail.com
 
-## Deploying Your Own Medibot
+Thank you for using MediBot!
 
-You can deploy your own instance of Medibot by following the instructions provided in the source code. You'll need to set up the necessary environment variables and data sources.
-
-## Feedback and Contributions
-
-We welcome your feedback and contributions to improve Medibot. If you have suggestions or would like to contribute, please feel free to [submit an issue](https://github.com/your-repo/issues) or [create a pull request](https://github.com/your-repo/pulls) on our GitHub repository.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE.md).
-
----
-
-Medibot is a project by [Your Name] and is provided for informational and educational purposes. It should not be used as a substitute for professional medical advice or consultation. If you have a medical condition, consult with a healthcare professional.
-
-[Live Medibot Web App](https://sherma-medibot.streamlit.app/)
-
+**Disclaimer: MediBot is for informational purposes only and should not be considered a substitute for professional medical advice. Consult with a healthcare professional for any medical concerns.**
