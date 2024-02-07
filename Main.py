@@ -1,25 +1,20 @@
 import streamlit as st
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import GooglePalmEmbeddings
-from langchain.llms import GooglePalm
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+import google.ai.generativelanguage as glm
 from langchain_community.embeddings import GPT4AllEmbeddings
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI ,GoogleGenerativeAI
-import os
+from langchain_google_genai import GoogleGenerativeAI
 from PIL import Image
-from langchain_google_genai import ChatGoogleGenerativeAI
 import google.generativeai as genai
 
 
 DATA_PATH = 'data/'
 DB_FAISS_PATH = 'db_faiss'
-
+api_key = "AIzaSyAtp_lUKFAXhp9O1B_nmg_pvWGAuVxaXZ8"
 # Create vector database
 def create_vector_db():
     loader = PyPDFDirectoryLoader(DATA_PATH)
@@ -41,10 +36,11 @@ Return the answer below with the explanation in simple words with an example and
 Answer with explanation in simple words:
 """
 
-# Define Streamlit app
 st.title("Medical Chatbot")
 
-# Create vector database (You may call this function when needed)
+API_KEY = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
+genai.configure(api_key=API_KEY)
+
 # create_vector_db()
 
 def set_custom_prompt():
@@ -59,10 +55,9 @@ Question: {question}
     return prompt
 
 def retrieval_qa_chain(llm, db):
-    retriever=db.as_retriever()
     prompt=set_custom_prompt()
-    chain_type_kwargs = {"prompt": prompt}
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=db.as_retriever(), chain_type_kwargs=chain_type_kwargs)
+    chain_type = {"prompt": prompt}
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=db.as_retriever(), chain_type_kwargs=chain_type)
     return qa
 
 def qa_bot():
@@ -92,23 +87,43 @@ def main():
 
     # User input at the bottom
     user_query = st.text_input("Enter your medical query:")
-    user_image=st.file_uploader(label="Image")
+    user_image=st.file_uploader(label="Image",type=['jpg', 'png'])
     if st.button("Submit"):
         retrieval_chain = qa_bot()
-        try:
-            response = retrieval_chain.run(user_query)
-        except:
-            # llm = GoogleGenerativeAI(model="models/text-bison-001",convert_system_message_to_human=True,verbose=True,google_api_key="AIzaSyAtp_lUKFAXhp9O1B_nmg_pvWGAuVxaXZ8")
-            # response=llm.generate([user_query], output_format="text", max_length=256, num_beams=5, length_penalty=0.8)
-            response="Out of my context!!"
         if user_image:
             img=Image.open(user_image)
-            st.image(img)
+            st.image(img, caption='Uploaded Image', use_column_width=True)
+            bytes_data = user_image.getvalue()
+            model = genai.GenerativeModel('gemini-pro-vision')
+            res = model.generate_content(
+                glm.Content(
+                    parts = [
+                        glm.Part(text="Write a description about this picture. This description for the medical assistant who need the data."),
+                        glm.Part(
+                            inline_data=glm.Blob(
+                                mime_type='image/jpeg',
+                                data=bytes_data
+                            )
+                        ),
+                    ],
+                ),
+                stream=True)
+            res.resolve()
+            res=res.text
+            print(res)
+        try:
+            response = retrieval_chain.run(user_query+res)
+        except:
+            llm = GoogleGenerativeAI(model="models/text-bison-001", google_api_key=api_key)
+            response=llm.invoke(
+                    user_query+res
+                )
+        
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
         st.session_state['conversation_history'].append({"role": "assistant", "content":response})
         # Use st.empty() to update the response
         response_placeholder = st.empty()
-        response_placeholder.markdown(f"Bot: {response}")
+        response_placeholder.markdown(f"*Bot*: {response}")
 
 
 if __name__ == "__main__":
