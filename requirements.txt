@@ -4,3 +4,7 @@ PyPDF2
 faiss-cpu
 streamlit
 sentence-transformers
+langchain_community
+langchain
+langchain_google_genai
+google
