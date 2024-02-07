@@ -1,39 +1,36 @@
 import streamlit as st
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import PyPDFLoader, DirectoryLoader
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain import PromptTemplate
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.llms import CTransformers
-from langchain.chains import RetrievalQA
-from langchain.document_loaders import PyPDFLoader, DirectoryLoader
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-import os
+from langchain.document_loaders import PyPDFDirectoryLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import GooglePalmEmbeddings
 from langchain.llms import GooglePalm
+from langchain.vectorstores import FAISS
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+import pinecone
+import os
+import sys
+from langchain_community.embeddings import GPT4AllEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI ,GoogleGenerativeAI
+import os
+from PIL import Image
+from langchain_google_genai import ChatGoogleGenerativeAI
+import google.generativeai as genai
 
-# Set environment variables and paths
-os.environ['GOOGLE_API_KEY'] = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
+
 DATA_PATH = 'data/'
 DB_FAISS_PATH = 'db_faiss'
 
 # Create vector database
 def create_vector_db():
-    loader = DirectoryLoader(DATA_PATH,
-                             glob='*.pdf',
-                             loader_cls=PyPDFLoader)
-
-    documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500,
-                                                   chunk_overlap=50)
-    texts = text_splitter.split_documents(documents)
-
-    embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2',
-                                       model_kwargs={'device': 'cpu'})
-
-    db = FAISS.from_documents(texts, embeddings)
+    loader = PyPDFDirectoryLoader(DATA_PATH)
+    data = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20)
+    text_chunks = text_splitter.split_documents(data)
+    embeddings=GPT4AllEmbeddings()
+    db = FAISS.from_documents(text_chunks, embeddings)
     db.save_local(DB_FAISS_PATH)
 
 custom_prompt_template = """Use the following pieces of information to answer the user's question.
@@ -41,7 +38,7 @@ If you don't know the answer, just say that you don't know, don't try to make up
 Try to answer in points.
 
 Context: {context}
-Question: {question}
+Question: {input}
 
 Return the answer below with the explanation in simple words with an example and deep knowledge.
 Answer with explanation in simple words:
@@ -54,33 +51,36 @@ st.title("Medical Chatbot")
 # create_vector_db()
 
 def set_custom_prompt():
-    """
-    Prompt template for QA retrieval for each vector store
-    """
-    prompt = PromptTemplate(template=custom_prompt_template,
-                            input_variables=['context', 'question'])
+    prompt_template  = """
+Use the following piece of context to answer the question. Use MUST provide a very detailed Answer atleast for each the question.
+
+{context}
+
+Question: {question}
+"""
+    prompt = PromptTemplate(template = prompt_template , input_variables=["context", "question"])
     return prompt
 
-def retrieval_qa_chain(llm, prompt, db):
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-    conversation_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever=db.as_retriever(search_kwargs={"k": 5}),
-                                                               memory=memory)
-    return conversation_chain
+def retrieval_qa_chain(llm, db):
+    retriever=db.as_retriever()
+    prompt=set_custom_prompt()
+    chain_type_kwargs = {"prompt": prompt}
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=db.as_retriever(), chain_type_kwargs=chain_type_kwargs)
+    return qa
 
 def qa_bot():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",
-                                       model_kwargs={'device': 'cpu'})
+    embeddings=GPT4AllEmbeddings()
     db = FAISS.load_local(DB_FAISS_PATH, embeddings)
-    llm = GooglePalm()
-    qa_prompt = set_custom_prompt()
-    qa = retrieval_qa_chain(llm, qa_prompt, db)
+    llm = GoogleGenerativeAI(model="models/text-bison-001",convert_system_message_to_human=True,verbose=True,google_api_key="AIzaSyAtp_lUKFAXhp9O1B_nmg_pvWGAuVxaXZ8")
+
+    qa = retrieval_qa_chain(llm, db)
     return qa
 if 'conversation_history' not in st.session_state:
     st.session_state['conversation_history'] = []
 # Define sidebar content
 st.sidebar.title("Sample Questions")
-st.sidebar.write("1. What are the symptoms of COVID-19?")
-st.sidebar.write("2. How can I lower my blood pressure?")
+st.sidebar.write("1. Give some Basic Health Checklist?")
+st.sidebar.write("2. I having dry hair, Give tips to maintain it.")
 st.sidebar.write("3. Tell me about diabetes management.")
 st.sidebar.write("4. How to treat a common cold?")
 st.sidebar.write("5. Describe the signs of a heart attack.")
@@ -95,17 +95,23 @@ def main():
 
     # User input at the bottom
     user_query = st.text_input("Enter your medical query:")
-
+    user_image=st.file_uploader(label="Image")
     if st.button("Submit"):
-        # Get the chatbot's response
-        response = qa_bot()({'question': user_query})
-
-        # Store the conversation history
+        retrieval_chain = qa_bot()
+        try:
+            response = retrieval_chain.run(user_query)
+        except:
+            # llm = GoogleGenerativeAI(model="models/text-bison-001",convert_system_message_to_human=True,verbose=True,google_api_key="AIzaSyAtp_lUKFAXhp9O1B_nmg_pvWGAuVxaXZ8")
+            # response=llm.generate([user_query], output_format="text", max_length=256, num_beams=5, length_penalty=0.8)
+            response="Out of my context!!"
+        if user_image:
+            img=Image.open(user_image)
+            st.image(img)
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
-        st.session_state['conversation_history'].append({"role": "assistant", "content": response['answer']})
+        st.session_state['conversation_history'].append({"role": "assistant", "content":response})
         # Use st.empty() to update the response
         response_placeholder = st.empty()
-        response_placeholder.text(f"Bot: {response['answer']}")
+        response_placeholder.text(f"Bot: {response}")
 
 
 if __name__ == "__main__":
