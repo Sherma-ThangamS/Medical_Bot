@@ -8,9 +8,6 @@ from langchain.llms import GooglePalm
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-import pinecone
-import os
-import sys
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI ,GoogleGenerativeAI
