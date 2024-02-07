@@ -108,7 +108,7 @@ def main():
         st.session_state['conversation_history'].append({"role": "assistant", "content":response})
         # Use st.empty() to update the response
         response_placeholder = st.empty()
-        response_placeholder.text(f"Bot: {response}")
+        response_placeholder.markdown(f"Bot: {response}")
 
 
 if __name__ == "__main__":
