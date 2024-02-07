@@ -115,9 +115,12 @@ def main():
             response = retrieval_chain.run(user_query+res)
         except:
             llm = GoogleGenerativeAI(model="models/text-bison-001", google_api_key=api_key)
-            response=llm.invoke(
-                    user_query+res
-                )
+            try:
+                response=llm.invoke(
+                        user_query+res+"\n If the question is related to other than the medical field, just say It is out of the context"
+                    )
+            except:
+                response="Out of the context"
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
         st.session_state['conversation_history'].append({"role": "assistant", "content":response})
         # Use st.empty() to update the response
