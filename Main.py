@@ -86,9 +86,9 @@ st.sidebar.write("   Email: sshermathangam.com")
 def main():
     for message in st.session_state['conversation_history']:
         if message['role'] == 'user':
-            st.text(f"User: {message['content']}")
+            st.markdown(f"User: {message['content']}")
         else:
-            st.text(f"Bot: {message['content']}")
+            st.markdown(f"Bot: {message['content']}")
 
     # User input at the bottom
     user_query = st.text_input("Enter your medical query:")
