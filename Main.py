@@ -88,6 +88,7 @@ def main():
     # User input at the bottom
     user_query = st.text_input("Enter your medical query:")
     user_image=st.file_uploader(label="Image",type=['jpg', 'png'])
+    res=""
     if st.button("Submit"):
         retrieval_chain = qa_bot()
         if user_image:
