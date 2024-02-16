@@ -88,7 +88,6 @@ def main():
     # User input at the bottom
     user_query = st.text_input("Enter your medical query:")
     user_image=st.file_uploader(label="Image",type=['jpg', 'png'])
-    res=""
     if st.button("Submit"):
         retrieval_chain = qa_bot()
         if user_image:
@@ -99,7 +98,7 @@ def main():
             res = model.generate_content(
                 glm.Content(
                     parts = [
-                        glm.Part(text="Write a description about this picture. This description for the medical assistant who need the data."),
+                        glm.Part(text="Write a description about this picture. This description for the medical assistant who need the data from the image only."),
                         glm.Part(
                             inline_data=glm.Blob(
                                 mime_type='image/jpeg',
@@ -115,16 +114,16 @@ def main():
         try:
             response = retrieval_chain.run(user_query+res)
         except:
-            llm = GoogleGenerativeAI(model="models/text-bison-001", google_api_key=api_key)
-            response=llm.invoke(
-                    user_query+res+"\n If the question is related to other than the medical field, just say It is out of the context"
-                )
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            API_KEY = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
+            llm =  ChatGoogleGenerativeAI(
+            model="gemini-pro",
+            google_api_key=API_KEY)
+            response=llm.invoke(res+"\n"+user_query).content
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
         st.session_state['conversation_history'].append({"role": "assistant", "content":response})
-        # Use st.empty() to update the response
         response_placeholder = st.empty()
         response_placeholder.markdown(f"*Bot*: {response}")
-
 
 if __name__ == "__main__":
     main()
