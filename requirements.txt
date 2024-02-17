@@ -9,3 +9,5 @@ langchain
 langchain_google_genai
 google
 gpt4all==1.0.8
+streamlit_mic_recorder
+SpeechRecognition
