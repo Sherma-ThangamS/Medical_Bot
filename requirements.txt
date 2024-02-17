@@ -11,3 +11,5 @@ google
 gpt4all==1.0.8
 streamlit_mic_recorder
 SpeechRecognition
+langdetect
+googletrans==4.0.0-rc1
