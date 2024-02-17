@@ -88,7 +88,7 @@ def main():
     # Voice recording option
     with columns[1]:
         st.text("Voice input:")
-        voice=speech_to_text("Start recording!",language='en', use_container_width=True, just_once=True, key='STT',)
+        voice=speech_to_text("Start recording!",language='en', use_container_width=True, key='STT',)
 
     user_image = st.file_uploader(label="Image", type=['jpg', 'png'])
     
