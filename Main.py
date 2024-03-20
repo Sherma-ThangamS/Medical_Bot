@@ -25,7 +25,7 @@ def create_vector_db():
     text_chunks = text_splitter.split_documents(data)
     embeddings = GPT4AllEmbeddings()
     db = FAISS.from_documents(text_chunks, embeddings)
-    db.save_local(DB_FAISS_PATH)
+    db.save_local(DB_FAISS_PATH,)
 
 # Set custom prompt for the chatbot
 def set_custom_prompt():
@@ -49,7 +49,7 @@ def retrieval_qa_chain(llm, db):
 # Function to initialize the chatbot
 def qa_bot():
     embeddings = GPT4AllEmbeddings()
-    db = FAISS.load_local(DB_FAISS_PATH, embeddings)
+    db = FAISS.load_local(DB_FAISS_PATH, embeddings,allow_dangerous_deserialization=True)
     llm = GoogleGenerativeAI(model="models/text-bison-001", convert_system_message_to_human=True, verbose=True, google_api_key=api_key)
     qa = retrieval_qa_chain(llm, db)
     return qa
