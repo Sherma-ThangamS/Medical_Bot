@@ -132,15 +132,15 @@ def main():
             res = res.text
 
         
-        try:
-            response = retrieval_chain.run(user_query + res)
-        except:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-            API_KEY = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
-            llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",
-                google_api_key=API_KEY)
-            response = llm.invoke(res + "\n" + user_query).content
+        # try:
+        #     response = retrieval_chain.run(user_query + res)
+        # except:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        API_KEY = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-pro",
+            google_api_key=API_KEY)
+        response = llm.invoke(res + "\n" + user_query).content
 
         # Update conversation history
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
