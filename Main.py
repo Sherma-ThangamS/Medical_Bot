@@ -6,6 +6,7 @@ from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import google.ai.generativelanguage as glm
+# from langchain.embeddings import GPT4AllEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_google_genai import GoogleGenerativeAI
 from PIL import Image
@@ -25,7 +26,7 @@ def create_vector_db():
     text_chunks = text_splitter.split_documents(data)
     embeddings = GPT4AllEmbeddings()
     db = FAISS.from_documents(text_chunks, embeddings)
-    db.save_local(DB_FAISS_PATH,)
+    db.save_local(DB_FAISS_PATH)
 
 # Set custom prompt for the chatbot
 def set_custom_prompt():
@@ -48,7 +49,12 @@ def retrieval_qa_chain(llm, db):
 
 # Function to initialize the chatbot
 def qa_bot():
-    embeddings = GPT4AllEmbeddings()
+    model_name = "all-MiniLM-L6-v2.gguf2.f16.gguf"
+    gpt4all_kwargs = {'allow_download': 'True'}
+    embeddings = GPT4AllEmbeddings(
+        model_name=model_name,
+        gpt4all_kwargs=gpt4all_kwargs
+    )
     db = FAISS.load_local(DB_FAISS_PATH, embeddings,allow_dangerous_deserialization=True)
     llm = GoogleGenerativeAI(model="models/text-bison-001", convert_system_message_to_human=True, verbose=True, google_api_key=api_key)
     qa = retrieval_qa_chain(llm, db)
@@ -91,7 +97,7 @@ def main():
         voice=speech_to_text("Start recording!",language='en', use_container_width=True, key='STT',)
 
     user_image = st.file_uploader(label="Image", type=['jpg', 'png'])
-    
+
     if voice:
         st.text(voice)
 
@@ -131,7 +137,7 @@ def main():
             res.resolve()
             res = res.text
 
-        
+
         # try:
         #     response = retrieval_chain.run(user_query + res)
         # except:
