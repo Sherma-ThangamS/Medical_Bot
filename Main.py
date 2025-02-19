@@ -7,6 +7,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import google.ai.generativelanguage as glm
 # from langchain.embeddings import GPT4AllEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_google_genai import GoogleGenerativeAI
 from PIL import Image
