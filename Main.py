@@ -49,11 +49,13 @@ def retrieval_qa_chain(llm, db):
 
 # Function to initialize the chatbot
 def qa_bot():
-    model_name = "all-MiniLM-L6-v2.gguf2.f16.gguf"
-    gpt4all_kwargs = {'allow_download': 'True'}
-    embeddings = GPT4AllEmbeddings(
+    model_name = "sentence-transformers/all-mpnet-base-v2"
+    model_kwargs = {'device': 'cpu'}
+    encode_kwargs = {'normalize_embeddings': False}
+    embeddings = HuggingFaceEmbeddings(
         model_name=model_name,
-        gpt4all_kwargs=gpt4all_kwargs
+        model_kwargs=model_kwargs,
+        encode_kwargs=encode_kwargs
     )
     db = FAISS.load_local(DB_FAISS_PATH, embeddings,allow_dangerous_deserialization=True)
     llm = GoogleGenerativeAI(model="models/gemini-pro", convert_system_message_to_human=True, verbose=True, google_api_key=api_key)
