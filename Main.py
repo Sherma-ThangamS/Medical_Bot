@@ -16,7 +16,7 @@ from streamlit_mic_recorder import mic_recorder, speech_to_text
 
 DATA_PATH = 'data/'
 DB_FAISS_PATH = 'db_faiss'
-api_key = "AIzaSyAtp_lUKFAXhp9O1B_nmg_pvWGAuVxaXZ8"
+api_key = st.secrets["API_KEY"]
 
 # Function to create vector database
 def create_vector_db():
@@ -56,7 +56,7 @@ def qa_bot():
         gpt4all_kwargs=gpt4all_kwargs
     )
     db = FAISS.load_local(DB_FAISS_PATH, embeddings,allow_dangerous_deserialization=True)
-    llm = GoogleGenerativeAI(model="models/text-bison-001", convert_system_message_to_human=True, verbose=True, google_api_key=api_key)
+    llm = GoogleGenerativeAI(model="models/gemini-pro", convert_system_message_to_human=True, verbose=True, google_api_key=api_key)
     qa = retrieval_qa_chain(llm, db)
     return qa
 
@@ -142,11 +142,10 @@ def main():
         #     response = retrieval_chain.run(user_query + res)
         # except:
         from langchain_google_genai import ChatGoogleGenerativeAI
-        API_KEY = 'AIzaSyDp7w1aTllF9shGJGW8S8rcmiqVFJJh1KM'
         llm = ChatGoogleGenerativeAI(
             model="gemini-pro",
-            google_api_key=API_KEY)
-        response = llm.invoke(res + "\n" + user_query).content
+            google_api_key=api_key)
+        response = retrieval_chain.run(res + "\n" + user_query)
 
         # Update conversation history
         st.session_state['conversation_history'].append({"role": "user", "content": user_query})
