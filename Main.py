@@ -13,6 +13,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from PIL import Image
 import google.generativeai as genai
 import speech_recognition as sr
+import torch
 from streamlit_mic_recorder import mic_recorder, speech_to_text
 
 DATA_PATH = 'data/'
