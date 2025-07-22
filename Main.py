@@ -10,6 +10,9 @@ from streamlit_mic_recorder import mic_recorder, speech_to_text
 from langchain_community.embeddings import HuggingFaceEmbeddings, GPT4AllEmbeddings
 from langchain.chat_models import ChatOpenAI
 import os
+from transformers import BlipProcessor, BlipForConditionalGeneration
+import torch
+
 
 DATA_PATH = 'data/'
 DB_FAISS_PATH = 'db_faiss'
@@ -47,6 +50,16 @@ def create_vector_db():
     db.save_local(DB_FAISS_PATH)
 
     st.success("✅ Vector DB created and saved successfully.")
+
+def generate_caption(image):
+    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+    inputs = processor(image, return_tensors="pt")
+    out = model.generate(**inputs)
+    caption = processor.decode(out[0], skip_special_tokens=True)
+    print(caption)
+    return caption
+
 
 # Set custom prompt for the chatbot
 def set_custom_prompt():
@@ -154,7 +167,8 @@ def main():
         if user_image:
             img = Image.open(user_image)
             st.image(img, caption='Uploaded Image', use_column_width=True)
-            res = "The uploaded image is noted for medical assistant reference. (Image interpretation disabled without Gemini Vision)"
+            caption = generate_caption(img)
+            res = f"Image Caption: {caption}. The uploaded image is noted for reference."
 
         # Run the retrieval chain
         try:
