@@ -13,3 +13,5 @@ streamlit_mic_recorder
 SpeechRecognition
 langdetect
 googletrans
+openai
+pypdf
